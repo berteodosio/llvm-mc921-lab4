@@ -12,10 +12,16 @@ public class MyVisitor extends SimpleMathBaseVisitor<Integer> {
 
     private final CompilationLog compilationLog = new CompilationLog();
 
+    private final CodeGenerator codeGenerator = new CodeGenerator();
+
     private DeclaredFunction currentDeclaredFunction = null;
 
     String getCompilationLog() {
         return compilationLog.getFullLog();
+    }
+
+    String getGeneratedCode() {
+        return codeGenerator.getFullGeneratedCode();
     }
 
     private void eraseCurrentDeclaredFunction() {
@@ -44,6 +50,7 @@ public class MyVisitor extends SimpleMathBaseVisitor<Integer> {
             declaredVariableIdentifiers.add(variableName);
         }
 
+        codeGenerator.generateGlobalVar(ctx);
         return super.visitSVarDeclaration(ctx);
     }
 

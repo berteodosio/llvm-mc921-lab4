@@ -8,56 +8,56 @@ export CLASSPATH=".:antlr-4.7.2-complete.jar:$CLASSPATH"
 #compiling the .java generated from Sum.g4 with MyParser.java and AddVisitor.java
 javac *.java
 
-EXPRESSION_1="var a = 0;"
+EXPRESSION_0="var sm_main = 5;"
 
-EXPRESSION_2="func a(x) 2 + x * 5;"
+EXPRESSION_1="func a(x) x;
+var sm_main = a(10);"
 
-EXPRESSION_3="var a = 25;
-func f1(x) 10 + x * a;
-func f2(a, x) f1(a) * (x + 30);
-var b = f2(a, a);
-func f3(x, y, z) x + y - z + 10;"
+EXPRESSION_2="var a = 10 - 5 - 4;
+func f(x) x + 2 * a;
+var sm_main = f(5);"
 
-EXPRESSION_4="var g1 = 1;
-var g2 = 10;
-var g3 = g1 + 5;
-var g4 = 15 + 3 * 2;
-func _f1(a, b) g2 * 10 + (g3 - 2) * 3;
-var _g1 = _f1(g4, 3);
-func f1 (g1, g2, a, b) (g1 + g2 + g3) * _g1 + a / b;
-func function1 (bar, par, car) f1(g1, g2, 9, car) * _f1(bar, par);"
+EXPRESSION_3="var a = 5;
+var b = 30 / a + 2;
+func f(a) a + b - 3 * 3;
+var sm_main = 5 + a - f(b);"
 
-EXPRESSION_5="var a = 0;
-var b = 15;
-var c = d;
-var d = a(10);
-var e = d + 20;
-var f = a * b + 10 / c;
-func A (g) g + a * (2 + b);
-func B (g, a) g * a + (f - e + 5) / 2;
-func C (A) A - 3;
-func D (B) B * A(e);
-func E (g) g + A(g) * B(f, g);
-func F (A) B + 32 * C(b);"
+EXPRESSION_4="func f(a, b, c, d) a * a / b + c * c / d - d;
+var sm_main = f(5, 6, 7, 8);"
 
-EXPRESSION_6="func a (a) (32 * a + 5) / 3;
-var a = 6;
-var b = a(5);
-func c(b) a + 10 * b;"
+EXPRESSION_5="var a = 10;
+var b = 5;
+func function(c) (a + b * 2) / c;
+var sm_main = function(10) - 1;"
 
-EXPRESSION_7="func A (A) A * 32;
-var b = A(3);
-var a = A + 3;
-var b = A(a) * 30;
-func B (a, b) (a + b - c) / 12;
-var c = c(23);
-func c (A, V) B(A, V) * 7 - 15;
-var d = (C(23, a) / B(32, a));"
+EXPRESSION_6="var a = 1;
+var b = a + 2 * a + 3 - 2;
+func f1(a) b * 8 / (3 + a);
+func f2(b) b * a + b * (b - 2);
+var c = ((f1(2) + f2(a) - 15)) / 2;
+func f3(a, b) a * (c - b);
+var d = 0 - 10;
+var sm_main = f3(c, d);"
 
-EXPRESSION_8="func _le_2func(a, b, c, d) ((a + b - c) * d);
-var _23 = _le_2func(1,2, 3);"
+EXPRESSION_7="var a = 1;
+var b = 1;
+var c = b + a;
+var d = c + b;
+var e = d + c;
+var f = a + b + c + d + e;
+func g(a, b, c, d) a + b + c + d;
+var sm_main = g(2, 3, 4, 5) - f * 2;"
 
-EXPRESSION_IN_USE=${EXPRESSION_8}
+EXPRESSION_8="func a(x) (x + 10) / 2;
+var b = a(2);
+func c(x) (a(7) - b) * 2;
+var d = (c(3) - a(2)) * (c(2) + a(3));
+func e(a, b) ((b + a) * c(d) + 15) / (0 - 5);
+var sm_main = e(10, d) + c(b);"
+
+EXPRESSION_9="var sm_main = (30 + 12) * ((15 - 2) / 3 + 7 - 2) - 77 * (0 - 1) - 42;"
+
+EXPRESSION_IN_USE=${EXPRESSION_0}
 
 #feeding a string and reading the tokens
 #echo "${EXPRESSION_IN_USE}" | java org.antlr.v4.gui.TestRig SimpleMath root -tokens
