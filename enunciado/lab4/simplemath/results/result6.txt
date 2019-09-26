@@ -1,2 +1,0 @@
-Symbol already declared: a
-Bad used symbol: a
