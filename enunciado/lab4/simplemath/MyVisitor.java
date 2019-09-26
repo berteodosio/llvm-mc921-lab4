@@ -55,12 +55,26 @@ public class MyVisitor extends SimpleMathBaseVisitor<Integer> {
     }
 
     @Override
+    public Integer visitFunc_param_list(final SimpleMathParser.Func_param_listContext ctx) {
+        codeGenerator.generateFunctionParameterList(ctx);
+        return super.visitFunc_param_list(ctx);
+    }
+
+    @Override
+    public Integer visitFunc_body(final SimpleMathParser.Func_bodyContext ctx) {
+        codeGenerator.generateFunctionBody(ctx);
+        return super.visitFunc_body(ctx);
+    }
+
+    @Override
     public Integer visitSFuncDeclaration(final SimpleMathParser.SFuncDeclarationContext ctx) {
         final String functionName = ctx.func_declaration().ID().getText();
         assertSymbolNotDeclared(functionName);
         final DeclaredFunction declaredFunction = new DeclaredFunction(functionName, getDeclaredFunctionArgumentList(ctx));
         this.currentDeclaredFunction = declaredFunction;
         declaredFunctionIdentifiers.add(declaredFunction);
+
+        codeGenerator.generateFunctionHeader(ctx);
         return super.visitSFuncDeclaration(ctx);
     }
 
