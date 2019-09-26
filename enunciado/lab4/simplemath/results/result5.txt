@@ -1,0 +1,3 @@
+Symbol undeclared: d
+Bad used symbol: a
+Bad used symbol: B

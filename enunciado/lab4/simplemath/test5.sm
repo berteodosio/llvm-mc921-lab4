@@ -1,0 +1,12 @@
+var a = 0;
+var b = 15;
+var c = d;
+var d = a(10);
+var e = d + 20;
+var f = a * b + 10 / c;
+func A (g) g + a * (2 + b);
+func B (g, a) g * a + (f - e + 5) / 2;
+func C (A) A - 3;
+func D (B) B * A(e);
+func E (g) g + A(g) * B(f, g);
+func F (A) B + 32 * C(b);

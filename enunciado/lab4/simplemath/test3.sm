@@ -1,0 +1,5 @@
+var a = 25;
+func f1(x) 10 + x * a;
+func f2(a, x) f1(a) * (x + 30);
+var b = f2(a, a);
+func f3(x, y, z) x + y - z + 10;

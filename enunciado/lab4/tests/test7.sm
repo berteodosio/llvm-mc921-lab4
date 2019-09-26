@@ -1,0 +1,8 @@
+var a = 1;
+var b = 1;
+var c = b + a;
+var d = c + b;
+var e = d + c;
+var f = a + b + c + d + e;
+func g(a, b, c, d) a + b + c + d;
+var sm_main = g(2, 3, 4, 5) - f * 2;

@@ -1,0 +1,4 @@
+var a = 5;
+var b = 30 / a + 2;
+func f(a) a + b - 3 * 3;
+var sm_main = 5 + a - f(b);

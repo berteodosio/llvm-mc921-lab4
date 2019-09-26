@@ -1,0 +1,2 @@
+func a(x) x;
+var sm_main = a(10);

@@ -1,0 +1,8 @@
+var g1 = 1;
+var g2 = 10;
+var g3 = g1 + 5;
+var g4 = 15 + 3 * 2;
+func _f1(a, b) g2 * 10 + (g3 - 2) * 3;
+var _g1 = _f1(g4, 3);
+func f1 (g1, g2, a, b) (g1 + g2 + g3) * _g1 + a / b;
+func function1 (bar, par, car) f1(g1, g2, 9, car) * _f1(bar, par);

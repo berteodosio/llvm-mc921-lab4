@@ -1,0 +1,6 @@
+func a(x) (x + 10) / 2;
+var b = a(2);
+func c(x) (a(7) - b) * 2;
+var d = (c(3) - a(2)) * (c(2) + a(3));
+func e(a, b) ((b + a) * c(d) + 15) / (0 - 5);
+var sm_main = e(10, d) + c(b);

@@ -1,0 +1,6 @@
+Bad used symbol: A
+Symbol already declared: b
+Symbol undeclared: c
+Bad used symbol: c
+Symbol already declared: c
+Symbol undeclared: C

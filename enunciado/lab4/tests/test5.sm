@@ -1,0 +1,4 @@
+var a = 10;
+var b = 5;
+func function(c) (a + b * 2) / c;
+var sm_main = function(10) - 1;

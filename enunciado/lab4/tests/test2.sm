@@ -1,0 +1,3 @@
+var a = 10 - 5 - 4;
+func f(x) x + 2 * a;
+var sm_main = f(5);

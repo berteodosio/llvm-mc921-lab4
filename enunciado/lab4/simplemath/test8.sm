@@ -1,0 +1,2 @@
+func _le_2func(a, b, c, d) ((a + b - c) * d);
+var _23 = _le_2func(1,2, 3);

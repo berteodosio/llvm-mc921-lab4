@@ -1,0 +1,8 @@
+func A (A) A * 32;
+var b = A(3);
+var a = A + 3;
+var b = A(a) * 30;
+func B (a, b) (a + b - c) / 12;
+var c = c(23);
+func c (A, V) B(A, V) * 7 - 15;
+var d = (C(23, a) / B(32, a));
