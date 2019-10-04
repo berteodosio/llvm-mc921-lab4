@@ -1,20 +1,48 @@
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import java.text.MessageFormat;
+import java.util.Stack;
+import java.util.UUID;
 
 class CodeGenerator {
 
     private String generatedCode = "";
 
     private final LlvmGenerator llvmGenerator = new LlvmGenerator();
+    private final TempGenerator tempGenerator = new TempGenerator();
 
     String getFullGeneratedCode() {
         return generatedCode;
     }
 
+    void generateExpression(final SimpleMathParser.ExpressionContext ctx) {
+        System.out.println(ctx.getText());
+        if (ctx.children.size() == 3) {
+            if (ctx.children.get(0) instanceof SimpleMathParser.ExpressionContext){
+                generateExpression((SimpleMathParser.ExpressionContext) ctx.children.get(0));
+            }
+
+            String leftTemp = tempGenerator.fetchNameFromStack();
+            TerminalNode terminalNode = (TerminalNode) ctx.children.get(1);
+            switch (terminalNode.getText()) {
+                case "+":
+                    generatedCode += llvmGenerator.generateAddOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                    break;
+                case "-":
+                    generatedCode += llvmGenerator.generateSubOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                    break;
+            }
+        } else if (ctx.children.size() == 1) {
+            String tempName = tempGenerator.generateTemp();
+            generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
+        }
+    }
+
     void generateGlobalVar(final SimpleMathParser.SVarDeclarationContext ctx) {
         // TODO: parse expression
-        generatedCode += llvmGenerator.generateGlobalVar(ctx.var_declaration().ID().getText(), ctx.var_declaration().expression().getText());
+        this.generateExpression(ctx.var_declaration().expression());
+        generatedCode += llvmGenerator.generateGlobalVar(ctx.var_declaration().ID().getText(), tempGenerator.fetchNameFromStack());
     }
 
     void generateFunctionHeader(final SimpleMathParser.SFuncDeclarationContext ctx) {
@@ -66,6 +94,45 @@ class CodeGenerator {
 
         String generateFunctionLastLine() {
             return "}\n";
+        }
+
+        String generateAddOp(final String tempName, final String param1, final String param2) {
+            return MessageFormat.format("{0} = add i32 {1},{2}\n", tempName, param1, param2);
+        }
+
+        String generateSubOp(final String tempName, final String param1, final String param2) {
+            return MessageFormat.format("{0} = sub i32 {1},{2}\n", tempName, param1, param2);
+        }
+
+        String generateMulOp(final String tempName, final String param1, final String param2) {
+            return MessageFormat.format("{0} = mul i32 {1},{2}\n", tempName, param1, param2);
+        }
+
+        String generateDivOp(final String tempName, final String param1, final String param2) {
+            return MessageFormat.format("{0} = div i32 {1},{2}\n", tempName, param1, param2);
+        }
+
+        String generateTempVar(final String tempName, final String value) {
+            return MessageFormat.format("{0} = i32 {1}\n", tempName, value);
+        }
+    }
+
+    class TempGenerator {
+        private Stack<String> tempStack;
+
+        TempGenerator() {
+            tempStack = new Stack<>();
+        }
+
+        public String generateTemp() {
+            String tempName = "%" + UUID.randomUUID().toString().replaceAll("-", "");
+            tempStack.push(tempName);
+
+            return tempName;
+        }
+
+        public String fetchNameFromStack() {
+            return tempStack.pop();
         }
     }
 }
