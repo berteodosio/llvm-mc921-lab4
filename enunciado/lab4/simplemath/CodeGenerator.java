@@ -1,3 +1,4 @@
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
@@ -16,26 +17,34 @@ class CodeGenerator {
         return generatedCode;
     }
 
-    void generateExpression(final SimpleMathParser.ExpressionContext ctx) {
-        System.out.println(ctx.getText());
+    void generateExpression(final ParserRuleContext ctx) {
         if (ctx.children.size() == 3) {
-            if (ctx.children.get(0) instanceof SimpleMathParser.ExpressionContext){
-                generateExpression((SimpleMathParser.ExpressionContext) ctx.children.get(0));
+            if (ctx.children.get(0).getText().equals("(")) {
+                generateExpression((ParserRuleContext) ctx.children.get(1));
+            } else {
+                generateExpression((ParserRuleContext) ctx.children.get(0));
+                String leftTemp = tempGenerator.fetchNameFromStack();
+                TerminalNode terminalNode = (TerminalNode) ctx.children.get(1);
+                switch (terminalNode.getText()) {
+                    case "+":
+                        generatedCode += llvmGenerator.generateAddOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        break;
+                    case "-":
+                        generatedCode += llvmGenerator.generateSubOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        break;
+                    case "/":
+                        generatedCode += llvmGenerator.generateDivOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        break;
+                    case "*":
+                        generatedCode += llvmGenerator.generateMulOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        break;
+                }
             }
-
-            String leftTemp = tempGenerator.fetchNameFromStack();
-            TerminalNode terminalNode = (TerminalNode) ctx.children.get(1);
-            switch (terminalNode.getText()) {
-                case "+":
-                    generatedCode += llvmGenerator.generateAddOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
-                    break;
-                case "-":
-                    generatedCode += llvmGenerator.generateSubOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
-                    break;
-            }
-        } else if (ctx.children.size() == 1) {
+        } else if (((ParserRuleContext)ctx.children.get(0)).children.size() == 1) {
             String tempName = tempGenerator.generateTemp();
             generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
+        } else {
+            generateExpression((ParserRuleContext) ctx.children.get(0));
         }
     }
 
