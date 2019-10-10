@@ -55,8 +55,10 @@ class CodeGenerator {
 
     void generateGlobalVar(final SimpleMathParser.SVarDeclarationContext ctx) {
         // TODO: parse expression
-        this.generateExpression(ctx.var_declaration().expression());
-        generatedCode += llvmGenerator.generateGlobalVar(ctx.var_declaration().ID().getText(), tempGenerator.fetchNameFromStack());
+        generatedCode += llvmGenerator.generateFunctionFirstLineStart(ctx.var_declaration().ID().getText());
+        generatedCode += llvmGenerator.generateFunctionFirstLineEnd();
+        this.generateFunctionBody(ctx.var_declaration().expression());
+        generatedCode += llvmGenerator.generateFunctionLastLine();
     }
 
     void generateFunctionHeader(final SimpleMathParser.SFuncDeclarationContext ctx) {
@@ -73,7 +75,11 @@ class CodeGenerator {
     }
 
     void generateFunctionBody(final SimpleMathParser.Func_bodyContext ctx) {
-        this.generateExpression(ctx.expression());
+        this.generateFunctionBody(ctx.expression());
+    }
+
+    void generateFunctionBody(final SimpleMathParser.ExpressionContext ctx) {
+        this.generateExpression(ctx);
         generatedCode += llvmGenerator.generateFunctionBody(tempGenerator.fetchNameFromStack());
         generatedCode += llvmGenerator.generateFunctionLastLine();
     }
@@ -100,7 +106,7 @@ class CodeGenerator {
         }
 
         String generateFunctionFirstLineEnd() {
-            return ") {\n";
+            return ") {\nentry:\n";
         }
 
         String generateFunctionBody(final String returnValue) {
@@ -124,11 +130,11 @@ class CodeGenerator {
         }
 
         String generateDivOp(final String tempName, final String param1, final String param2) {
-            return MessageFormat.format("{0} = div i32 {1},{2}\n", tempName, param1, param2);
+            return MessageFormat.format("{0} = sdiv i32 {1},{2}\n", tempName, param1, param2);
         }
 
         String generateTempVar(final String tempName, final String value) {
-            return MessageFormat.format("{0} = i32 {1}\n", tempName, value);
+            return MessageFormat.format("{0} = add i32 {1}, 0\n", tempName, value);
         }
     }
 
@@ -140,7 +146,8 @@ class CodeGenerator {
         }
 
         public String generateTemp() {
-            String tempName = "%" + UUID.randomUUID().toString().replaceAll("-", "");
+            String tempName = UUID.randomUUID().toString().replaceAll("-", "");
+            tempName = "%" +  tempName.replaceAll("[\\d.]", "");
             tempStack.push(tempName);
 
             return tempName;
