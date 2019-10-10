@@ -23,23 +23,28 @@ class CodeGenerator {
                 generateExpression((ParserRuleContext) ctx.children.get(1));
             } else {
                 generateExpression((ParserRuleContext) ctx.children.get(0));
+                generateExpression((ParserRuleContext) ctx.children.get(2));
                 String leftTemp = tempGenerator.fetchNameFromStack();
+                String rightTemp = tempGenerator.fetchNameFromStack();
                 TerminalNode terminalNode = (TerminalNode) ctx.children.get(1);
                 switch (terminalNode.getText()) {
                     case "+":
-                        generatedCode += llvmGenerator.generateAddOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        generatedCode += llvmGenerator.generateAddOp(tempGenerator.generateTemp(), leftTemp, rightTemp);
                         break;
                     case "-":
-                        generatedCode += llvmGenerator.generateSubOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        generatedCode += llvmGenerator.generateSubOp(tempGenerator.generateTemp(), rightTemp, leftTemp);
                         break;
                     case "/":
-                        generatedCode += llvmGenerator.generateDivOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        generatedCode += llvmGenerator.generateDivOp(tempGenerator.generateTemp(), rightTemp, leftTemp);
                         break;
                     case "*":
-                        generatedCode += llvmGenerator.generateMulOp(tempGenerator.generateTemp(), leftTemp, ctx.children.get(2).getText());
+                        generatedCode += llvmGenerator.generateMulOp(tempGenerator.generateTemp(), leftTemp, rightTemp);
                         break;
                 }
             }
+        } else if (ctx.children.get(0) instanceof TerminalNodeImpl) {
+            String tempName = tempGenerator.generateTemp();
+            generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
         } else if (((ParserRuleContext)ctx.children.get(0)).children.size() == 1) {
             String tempName = tempGenerator.generateTemp();
             generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
@@ -68,7 +73,8 @@ class CodeGenerator {
     }
 
     void generateFunctionBody(final SimpleMathParser.Func_bodyContext ctx) {
-        generatedCode += llvmGenerator.generateFunctionBody(ctx.expression().getText());
+        this.generateExpression(ctx.expression());
+        generatedCode += llvmGenerator.generateFunctionBody(tempGenerator.fetchNameFromStack());
         generatedCode += llvmGenerator.generateFunctionLastLine();
     }
 
