@@ -24,6 +24,10 @@ public class MyVisitor extends SimpleMathBaseVisitor<Integer> {
         return codeGenerator.getFullGeneratedCode();
     }
 
+    void generateInitializationFunction() {
+        codeGenerator.generateInitializationFunction();
+    }
+
     private void eraseCurrentDeclaredFunction() {
         this.currentDeclaredFunction = null;
     }

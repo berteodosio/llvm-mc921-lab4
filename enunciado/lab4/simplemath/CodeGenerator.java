@@ -3,6 +3,8 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -12,6 +14,10 @@ class CodeGenerator {
 
     private final LlvmGenerator llvmGenerator = new LlvmGenerator();
     private final TempGenerator tempGenerator = new TempGenerator();
+
+    private final Set<String> globalVariableSet = new HashSet<>();
+
+    private static final String INITIALIZATION_FUNCTION_NAME = "batata";
 
     String getFullGeneratedCode() {
         return generatedCode;
@@ -54,11 +60,17 @@ class CodeGenerator {
     }
 
     void generateGlobalVar(final SimpleMathParser.SVarDeclarationContext ctx) {
-        // TODO: parse expression
-        generatedCode += llvmGenerator.generateFunctionFirstLineStart(ctx.var_declaration().ID().getText());
+        final String globalVarName = ctx.var_declaration().ID().getText();
+        globalVariableSet.add(globalVarName);
+
+        generatedCode += llvmGenerator.generateFunctionFirstLineStart(getSuffixedGlobalVarName(globalVarName));
         generatedCode += llvmGenerator.generateFunctionFirstLineEnd();
         this.generateFunctionBody(ctx.var_declaration().expression());
-        generatedCode += llvmGenerator.generateFunctionLastLine();
+//        generatedCode += llvmGenerator.generateFunctionLastLine();
+    }
+
+    private String getSuffixedGlobalVarName(final String globalVarName) {
+        return globalVarName + "__init_function";
     }
 
     void generateFunctionHeader(final SimpleMathParser.SFuncDeclarationContext ctx) {
@@ -84,10 +96,38 @@ class CodeGenerator {
         generatedCode += llvmGenerator.generateFunctionLastLine();
     }
 
+    // TODO: GENERATE ALL GLOBAL VARIABLES
+    // TODO: INITIALIZE ALL GLOBAL VARIABLES
+    void generateInitializationFunction() {
+        generatedCode += "\n\n";
+
+        generatedCode += "; init global var declarations\n";
+        for (final String globalVariableName : globalVariableSet) {
+            generatedCode += llvmGenerator.generateGlobalVar(globalVariableName, "0");
+        }
+        generatedCode += "; end global var declarations\n\n";
+
+        generatedCode += llvmGenerator.generateFunctionFirstLineStart(INITIALIZATION_FUNCTION_NAME);
+        generatedCode += llvmGenerator.generateFunctionFirstLineEnd();
+
+        for (final String globalVariableName : globalVariableSet) {
+            final String tempVariable = tempGenerator.generateTemp();       // todo check for stack problems
+            generatedCode += llvmGenerator.generateCallInstruction(tempVariable, getSuffixedGlobalVarName(globalVariableName));
+            generatedCode += llvmGenerator.generateStoreInstruction(tempVariable, globalVariableName);
+        }
+
+        generatedCode += llvmGenerator.generateFunctionBody("0");
+        generatedCode += llvmGenerator.generateFunctionLastLine();
+    }
+
     class LlvmGenerator {
 
+        String generateCallInstruction(final String returnVariableName, final String functionName) {
+            return MessageFormat.format("{0} = call i32 @{1}()\n", returnVariableName, functionName);
+        }
+
         String generateGlobalVar(final String identifier, final String value) {
-            return MessageFormat.format("@{0} global i32 {1};\n", identifier, value);
+            return MessageFormat.format("@{0} = global i32 {1};\n", identifier, value);
         }
 
         String generateFunctionFirstLineStart(final String functionName) {
@@ -106,7 +146,7 @@ class CodeGenerator {
         }
 
         String generateFunctionFirstLineEnd() {
-            return ") {\nentry:\n";
+            return ") {\n";
         }
 
         String generateFunctionBody(final String returnValue) {
@@ -114,7 +154,7 @@ class CodeGenerator {
         }
 
         String generateFunctionLastLine() {
-            return "}\n";
+            return "\n}\n";
         }
 
         String generateAddOp(final String tempName, final String param1, final String param2) {
@@ -135,6 +175,10 @@ class CodeGenerator {
 
         String generateTempVar(final String tempName, final String value) {
             return MessageFormat.format("{0} = add i32 {1}, 0\n", tempName, value);
+        }
+
+        String generateStoreInstruction(final String temporaryName, final String destinationName) {
+            return MessageFormat.format("store i32 {0}, i32* @{1}\n", temporaryName, destinationName);
         }
     }
 
