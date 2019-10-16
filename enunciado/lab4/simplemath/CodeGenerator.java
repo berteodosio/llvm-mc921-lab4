@@ -1,8 +1,10 @@
+import com.sun.tools.javac.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -46,8 +48,20 @@ class CodeGenerator {
             String tempName = tempGenerator.generateTemp();
             generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
         } else if (((ParserRuleContext)ctx.children.get(0)).children.size() == 1) {
-            String tempName = tempGenerator.generateTemp();
-            generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
+            if (ctx.getText().contains("(")) {
+                String ctxText = ctx.getText();
+                String funName = ctxText.split("[(]")[0];
+                String[] arguments = ctxText.split("[(]")[1]
+                        .replaceAll("[)]", "")
+                        .split(",");
+                
+                String tempName = tempGenerator.generateTemp();
+                generatedCode += llvmGenerator.generateTempVar(tempName,
+                        llvmGenerator.generateFunctionCall(funName, arguments));
+            } else {
+                String tempName = tempGenerator.generateTemp();
+                generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
+            }
         } else {
             generateExpression((ParserRuleContext) ctx.children.get(0));
         }
@@ -88,6 +102,13 @@ class CodeGenerator {
 
         String generateGlobalVar(final String identifier, final String value) {
             return MessageFormat.format("@{0} global i32 {1};\n", identifier, value);
+        }
+
+        String generateFunctionCall(final String functionName, final String[] parameters) {
+            String call = MessageFormat.format("call i32 @{0}(\n", functionName);
+            call += Arrays.stream(parameters).reduce((it, acc) -> "i32 " + it + ", " + acc);
+
+            return call;
         }
 
         String generateFunctionFirstLineStart(final String functionName) {
