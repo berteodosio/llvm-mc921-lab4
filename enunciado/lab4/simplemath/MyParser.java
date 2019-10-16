@@ -34,6 +34,7 @@ class MyParser {
 
         // gets compilation log
         final String compilationLog = myVisitor.getCompilationLog();
+        myVisitor.generateInitializationFunction();
         final String generatedCode = myVisitor.getGeneratedCode();
 
         // prints compilation log as a final result from the program

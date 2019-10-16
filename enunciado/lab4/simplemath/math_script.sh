@@ -57,7 +57,7 @@ var sm_main = e(10, d) + c(b);"
 
 EXPRESSION_9="var sm_main = (30 + 12) * ((15 - 2) / 3 + 7 - 2) - 77 * (0 - 1) - 42;"
 
-EXPRESSION_IN_USE=${EXPRESSION_1}
+EXPRESSION_IN_USE=${EXPRESSION_0}
 
 #feeding a string and reading the tokens
 #echo "${EXPRESSION_IN_USE}" | java org.antlr.v4.gui.TestRig SimpleMath root -tokens
@@ -76,3 +76,6 @@ clear() {
 }
 
 clear
+
+#clang -S -emit-llvm code.c
+#@a = global i32 10
