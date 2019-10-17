@@ -3,11 +3,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class CodeGenerator {
@@ -60,10 +56,21 @@ class CodeGenerator {
                 String[] arguments = ctxText.split("[(]")[1]
                         .replaceAll("[)]", "")
                         .split(",");
+
+                List<String> argumentsList = Arrays.stream(arguments).map(it -> {
+                    if (globalVariableSet.contains(it)) {
+                        String tempVar = tempGenerator.generateTemp();
+                        generatedCode += llvmGenerator.generateTempVarFromGlobal(tempVar, it);
+                        tempGenerator.fetchNameFromStack();
+                        return tempVar;
+                    } else {
+                        return it;
+                    }
+                }).collect(Collectors.toList());
                 
                 String tempName = tempGenerator.generateTemp();
                 generatedCode += llvmGenerator.generateTempVarFromFunction(tempName,
-                        llvmGenerator.generateFunctionCall(funName, arguments));
+                        llvmGenerator.generateFunctionCall(funName, argumentsList));
             } else {
                 String tempName = tempGenerator.generateTemp();
                 generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
@@ -144,9 +151,9 @@ class CodeGenerator {
             return MessageFormat.format("@{0} = global i32 {1};\n", identifier, value);
         }
 
-        String generateFunctionCall(final String functionName, final String[] parameters) {
+        String generateFunctionCall(final String functionName, final List<String> parameters) {
             String call = MessageFormat.format("call i32 @{0}(", functionName);
-            call += Arrays.stream(parameters).map(it ->"i32 " + it).collect(Collectors.joining(","));
+            call += parameters.stream().map(it ->"i32 " + it).collect(Collectors.joining(","));
 
             return call + ")\n";
         }
@@ -200,6 +207,10 @@ class CodeGenerator {
 
         String generateTempVarFromFunction(final String tempName, final String value) {
             return MessageFormat.format("{0} = {1}\n", tempName, value);
+        }
+
+        String generateTempVarFromGlobal(final String tempName, final String globalName) {
+            return MessageFormat.format("{0} = load i32, i32* @${1}\n", tempName, globalName);
         }
 
         String generateStoreInstruction(final String temporaryName, final String destinationName) {
