@@ -197,7 +197,7 @@ class CodeGenerator {
         }
 
         String generateTempVar(final String tempName, final String value) {
-            return MessageFormat.format("{0} = i32 {1}\n", tempName, value);
+            return MessageFormat.format("{0} = add i32 {1}, 0\n", tempName, value);
         }
 
         String generateStoreInstruction(final String temporaryName, final String destinationName) {
