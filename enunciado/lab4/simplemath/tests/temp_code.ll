@@ -1,6 +1,6 @@
 define i32 @sm_main__init_function() {
-%ebfdabdfe = add i32 5, 0
-ret i32 %ebfdabdfe
+    %ebadbbaceefae = i32 5
+    ret i32 %ebadbbaceefae
 }
 
 
@@ -9,7 +9,7 @@ ret i32 %ebfdabdfe
 ; end global var declarations
 
 define i32 @batata() {
-%abfbfaaafceadd = call i32 @sm_main__init_function()
-store i32 %abfbfaaafceadd, i32* @sm_main
+%bfbbffe = call i32 @sm_main__init_function()
+store i32 %bfbbffe, i32* @sm_main
 ret i32 0
 }
