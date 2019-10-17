@@ -22,6 +22,51 @@ class CodeGenerator {
         return generatedCode;
     }
 
+    private void generateTemp(final ParserRuleContext ctx) {
+        if (ctx.getText().chars().filter(ch -> ch == '(').count() > 1 &&
+                ctx.getText().chars().filter(ch -> ch == ')').count() > 1) {
+            generateExpression((ParserRuleContext)ctx.children.get(0));
+
+        } else if (ctx.getText().chars().filter(ch -> ch == '(').count() == 1 &&
+                ctx.getText().chars().filter(ch -> ch == ')').count() == 1) {
+            String ctxText = ctx.getText();
+            String funName = ctxText.split("[(]")[0];
+            String[] arguments = ctxText.split("[(]")[1]
+                    .replaceAll("[)]", "")
+                    .split(",");
+
+            List<String> argumentsList = Arrays.stream(arguments).map(it -> {
+                if (globalVariableSet.contains(it)) {
+                    String tempVar = tempGenerator.generateTemp();
+                    generatedCode += llvmGenerator.generateTempVarFromGlobal(tempVar, it);
+                    tempGenerator.fetchNameFromStack();
+                    return tempVar;
+                } else {
+                    return it;
+                }
+            }).collect(Collectors.toList());
+
+            String tempName = tempGenerator.generateTemp();
+            generatedCode += llvmGenerator.generateTempVarFromFunction(tempName,
+                    llvmGenerator.generateFunctionCall(funName, argumentsList));
+        } else {
+            final String tempName = tempGenerator.generateTemp();
+            final String ctxText = ctx.getText();
+            final String tempVarValue;
+
+            if (globalVariableSet.contains(ctxText) && !currentFunctionArguments.contains(ctxText)) {
+                generatedCode += llvmGenerator.generateTempVarFromGlobal(tempName, ctxText);
+            } else if (!ctxText.matches(".*\\d.*")) {
+                tempVarValue = "%" + ctxText;
+                generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
+            }  else {
+                tempVarValue = ctxText;
+                generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
+
+            }
+        }
+    }
+
     void generateExpression(final ParserRuleContext ctx) {
         if (ctx.children.size() == 3) {
             if (ctx.children.get(0).getText().equals("(")) {
@@ -48,51 +93,15 @@ class CodeGenerator {
                 }
             }
         } else if (ctx.children.get(0) instanceof TerminalNodeImpl) {
-            String tempName = tempGenerator.generateTemp();
-            generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
-        } else if (((ParserRuleContext)ctx.children.get(0)).children.size() == 1) {
-            if (ctx.getText().chars().filter(ch -> ch == '(').count() > 1 &&
-                    ctx.getText().chars().filter(ch -> ch == ')').count() > 1) {
-                generateExpression((ParserRuleContext)ctx.children.get(0));
-
-            } else if (ctx.getText().chars().filter(ch -> ch == '(').count() == 1 &&
-                    ctx.getText().chars().filter(ch -> ch == ')').count() == 1) {
-                String ctxText = ctx.getText();
-                String funName = ctxText.split("[(]")[0];
-                String[] arguments = ctxText.split("[(]")[1]
-                        .replaceAll("[)]", "")
-                        .split(",");
-
-                List<String> argumentsList = Arrays.stream(arguments).map(it -> {
-                    if (globalVariableSet.contains(it)) {
-                        String tempVar = tempGenerator.generateTemp();
-                        generatedCode += llvmGenerator.generateTempVarFromGlobal(tempVar, it);
-                        tempGenerator.fetchNameFromStack();
-                        return tempVar;
-                    } else {
-                        return it;
-                    }
-                }).collect(Collectors.toList());
-                
-                String tempName = tempGenerator.generateTemp();
-                generatedCode += llvmGenerator.generateTempVarFromFunction(tempName,
-                        llvmGenerator.generateFunctionCall(funName, argumentsList));
+            String ctxText = ctx.getText();
+            if (ctxText.contains("(")) {
+                generateTemp(ctx);
             } else {
-                final String tempName = tempGenerator.generateTemp();
-                final String ctxText = ctx.getText();
-                final String tempVarValue;
-
-                if (globalVariableSet.contains(ctxText) && !currentFunctionArguments.contains(ctxText)) {
-                    generatedCode += llvmGenerator.generateTempVarFromGlobal(tempName, ctxText);
-                } else if (!ctxText.matches(".*\\d.*")) {
-                    tempVarValue = "%" + ctxText;
-                    generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
-                }  else {
-                    tempVarValue = ctxText;
-                    generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
-
-                }
+                String tempName = tempGenerator.generateTemp();
+                generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
             }
+        } else if (((ParserRuleContext)ctx.children.get(0)).children.size() == 1) {
+            generateTemp(ctx);
         } else {
             generateExpression((ParserRuleContext) ctx.children.get(0));
         }
