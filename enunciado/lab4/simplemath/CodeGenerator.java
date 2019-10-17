@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 class CodeGenerator {
 
@@ -61,7 +62,7 @@ class CodeGenerator {
                         .split(",");
                 
                 String tempName = tempGenerator.generateTemp();
-                generatedCode += llvmGenerator.generateTempVar(tempName,
+                generatedCode += llvmGenerator.generateTempVarFromFunction(tempName,
                         llvmGenerator.generateFunctionCall(funName, arguments));
             } else {
                 String tempName = tempGenerator.generateTemp();
@@ -145,11 +146,8 @@ class CodeGenerator {
 
         String generateFunctionCall(final String functionName, final String[] parameters) {
             String call = MessageFormat.format("call i32 @{0}(", functionName);
-            if (parameters.length > 0) {
-                call += Arrays.stream(parameters).reduce((it, acc) -> "i32 " + it + ", " + acc).orElse("");
-            } else {
-                call += "void";
-            }
+            call += Arrays.stream(parameters).map(it ->"i32 " + it).collect(Collectors.joining(","));
+
             return call + ")\n";
         }
 
@@ -198,6 +196,10 @@ class CodeGenerator {
 
         String generateTempVar(final String tempName, final String value) {
             return MessageFormat.format("{0} = i32 {1}\n", tempName, value);
+        }
+
+        String generateTempVarFromFunction(final String tempName, final String value) {
+            return MessageFormat.format("{0} = {1}\n", tempName, value);
         }
 
         String generateStoreInstruction(final String temporaryName, final String destinationName) {
