@@ -144,10 +144,13 @@ class CodeGenerator {
         }
 
         String generateFunctionCall(final String functionName, final String[] parameters) {
-            String call = MessageFormat.format("call i32 @{0}(\n", functionName);
-            call += Arrays.stream(parameters).reduce((it, acc) -> "i32 " + it + ", " + acc);
-
-            return call;
+            String call = MessageFormat.format("call i32 @{0}(", functionName);
+            if (parameters.length > 0) {
+                call += Arrays.stream(parameters).reduce((it, acc) -> "i32 " + it + ", " + acc).orElse("");
+            } else {
+                call += "void";
+            }
+            return call + ")\n";
         }
 
         String generateFunctionFirstLineStart(final String functionName) {
@@ -194,7 +197,7 @@ class CodeGenerator {
         }
 
         String generateTempVar(final String tempName, final String value) {
-            return MessageFormat.format("{0} = add i32 {1}, 0\n", tempName, value);
+            return MessageFormat.format("{0} = i32 {1}\n", tempName, value);
         }
 
         String generateStoreInstruction(final String temporaryName, final String destinationName) {
