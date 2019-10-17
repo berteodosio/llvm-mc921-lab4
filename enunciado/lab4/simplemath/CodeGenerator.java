@@ -51,7 +51,12 @@ class CodeGenerator {
             String tempName = tempGenerator.generateTemp();
             generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
         } else if (((ParserRuleContext)ctx.children.get(0)).children.size() == 1) {
-            if (ctx.getText().contains("(")) {
+            if (ctx.getText().chars().filter(ch -> ch == '(').count() > 1 &&
+                    ctx.getText().chars().filter(ch -> ch == ')').count() > 1) {
+                generateExpression((ParserRuleContext)ctx.children.get(0));
+
+            } else if (ctx.getText().chars().filter(ch -> ch == '(').count() == 1 &&
+                    ctx.getText().chars().filter(ch -> ch == ')').count() == 1) {
                 String ctxText = ctx.getText();
                 String funName = ctxText.split("[(]")[0];
                 String[] arguments = ctxText.split("[(]")[1]
