@@ -14,6 +14,7 @@ class CodeGenerator {
     private final TempGenerator tempGenerator = new TempGenerator();
 
     private final Set<String> globalVariableSet = new HashSet<>();
+    private final Set<String> currentFunctionArguments = new HashSet<>();
 
     private static final String INITIALIZATION_FUNCTION_NAME = "batata";
 
@@ -75,12 +76,17 @@ class CodeGenerator {
                 final String tempName = tempGenerator.generateTemp();
                 final String ctxText = ctx.getText();
                 final String tempVarValue;
-                if (!ctxText.matches(".*\\d.*")) {
+
+                if (globalVariableSet.contains(ctxText) && !currentFunctionArguments.contains(ctxText)) {
+                    generatedCode += llvmGenerator.generateTempVarFromGlobal(tempName, ctxText);
+                } else if (!ctxText.matches(".*\\d.*")) {
                     tempVarValue = "%" + ctxText;
-                } else {
+                    generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
+                }  else {
                     tempVarValue = ctxText;
+                    generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
+
                 }
-                generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
             }
         } else {
             generateExpression((ParserRuleContext) ctx.children.get(0));
@@ -106,8 +112,10 @@ class CodeGenerator {
     }
 
     void generateFunctionParameterList(final SimpleMathParser.Func_param_listContext ctx) {
+        currentFunctionArguments.clear();
         for (int i = 0; i < ctx.ID().size(); i++) {
             final TerminalNode parameterName = ctx.ID(i);
+            currentFunctionArguments.add(parameterName.getText());
             generatedCode += llvmGenerator.generateFunctionParameterName(parameterName.getText(), i);
         }
 
