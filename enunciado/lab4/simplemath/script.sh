@@ -9,15 +9,17 @@ export CLASSPATH=".:antlr-4.7.2-complete.jar:$CLASSPATH"
 # compiling the .java generated from SimpleMath.g4 with MyParser.java and MyVisitor.java
 javac *.java
 
-# execute the implemented visitor for all available tests
-java MyParser < test1.sm > result1.txt
-java MyParser < test2.sm > result2.txt
-java MyParser < test3.sm > result3.txt
-java MyParser < test4.sm > result4.txt
-java MyParser < test5.sm > result5.txt
-java MyParser < test6.sm > result6.txt
-java MyParser < test7.sm > result7.txt
-java MyParser < test8.sm > result8.txt
+# execute the implemented visitor to generate llvm code
+# if you want to test a custom llvm code, comment this line to avoid regenerating code.ll
+java MyParser < $1 > code.ll
 
-# finishing displaying test7.sm parse tree
-java org.antlr.v4.gui.TestRig SimpleMath root -gui < test7.sm
+# TODO: REMOVE THIS LINE
+#export PATH=$PATH:/usr/local/opt/llvm/bin/llc
+
+# Compile LLVM CODE
+# FIXME: change to llc
+/usr/local/opt/llvm/bin/llc code.ll
+
+# Compile C source file with assembly code
+gcc printer.c code.s -o printer
+
