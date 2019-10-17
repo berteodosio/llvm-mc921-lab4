@@ -65,8 +65,15 @@ class CodeGenerator {
                 generatedCode += llvmGenerator.generateTempVarFromFunction(tempName,
                         llvmGenerator.generateFunctionCall(funName, arguments));
             } else {
-                String tempName = tempGenerator.generateTemp();
-                generatedCode += llvmGenerator.generateTempVar(tempName, ctx.getText());
+                final String tempName = tempGenerator.generateTemp();
+                final String ctxText = ctx.getText();
+                final String tempVarValue;
+                if (!ctxText.matches(".*\\d.*")) {
+                    tempVarValue = "%" + ctxText;
+                } else {
+                    tempVarValue = ctxText;
+                }
+                generatedCode += llvmGenerator.generateTempVar(tempName, tempVarValue);
             }
         } else {
             generateExpression((ParserRuleContext) ctx.children.get(0));

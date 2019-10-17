@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./script.sh tests/test0.sm
+./script.sh tests/test1.sm
