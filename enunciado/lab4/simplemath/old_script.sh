@@ -20,4 +20,4 @@ java MyParser < test7.sm > result7.txt
 java MyParser < test8.sm > result8.txt
 
 # finishing displaying test7.sm parse tree
-java org.antlr.v4.gui.TestRig SimpleMath root -gui < test7.sm
+java org.antlr.v4.gui.TestRig SimpleMath root -gui < tests/test8.sm

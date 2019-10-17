@@ -13,7 +13,7 @@ class CodeGenerator {
     private final LlvmGenerator llvmGenerator = new LlvmGenerator();
     private final TempGenerator tempGenerator = new TempGenerator();
 
-    private final Set<String> globalVariableSet = new HashSet<>();
+    private final List<String> globalVariableSet = new ArrayList<>();
     private final Set<String> currentFunctionArguments = new HashSet<>();
 
     private static final String INITIALIZATION_FUNCTION_NAME = "batata";
