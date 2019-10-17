@@ -10,6 +10,7 @@ export CLASSPATH=".:antlr-4.7.2-complete.jar:$CLASSPATH"
 javac *.java
 
 # execute the implemented visitor to generate llvm code
+# if you want to test a custom llvm code, comment this line to avoid regenerating code.ll
 java MyParser < $1 > code.ll
 
 # TODO: REMOVE THIS LINE
