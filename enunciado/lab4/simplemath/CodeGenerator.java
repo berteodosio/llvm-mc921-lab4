@@ -130,6 +130,7 @@ class CodeGenerator {
         this.generateExpression(ctx);
         generatedCode += llvmGenerator.generateFunctionBody(tempGenerator.fetchNameFromStack());
         generatedCode += llvmGenerator.generateFunctionLastLine();
+        currentFunctionArguments.clear();
     }
 
     // TODO: GENERATE ALL GLOBAL VARIABLES
