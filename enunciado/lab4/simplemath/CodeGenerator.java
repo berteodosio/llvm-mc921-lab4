@@ -226,7 +226,7 @@ class CodeGenerator {
         }
 
         String generateTempVarFromGlobal(final String tempName, final String globalName) {
-            return MessageFormat.format("{0} = load i32, i32* @${1}\n", tempName, globalName);
+            return MessageFormat.format("{0} = load i32, i32* @{1}\n", tempName, globalName);
         }
 
         String generateStoreInstruction(final String temporaryName, final String destinationName) {
