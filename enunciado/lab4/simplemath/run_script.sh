@@ -1,50 +1,43 @@
 #!/bin/bash
 
-echo "TEST 0"
 ./script.sh tests/test0.sm
-./printer
+./printer > result0.txt
+diff tests/test0.res result0.txt
 
-echo ""
-echo "TEST 1"
 ./script.sh tests/test1.sm
-./printer
+./printer > result1.txt
+diff tests/test1.res result1.txt
 
-echo ""
-echo "TEST 2"
 ./script.sh tests/test2.sm
-./printer
+./printer > result2.txt
+diff tests/test2.res result2.txt
 
-echo ""
-echo "TEST 3"
 ./script.sh tests/test3.sm
-./printer
+./printer > result3.txt
+diff tests/test3.res result3.txt
 
-echo ""
-echo "TEST 4"
 ./script.sh tests/test4.sm
-./printer
+./printer > result4.txt
+diff tests/test4.res result4.txt
 
-echo ""
-echo "TEST 5"
 ./script.sh tests/test5.sm
-./printer
+./printer > result5.txt
+diff tests/test5.res result5.txt
 
-echo ""
-echo "TEST 6"
 ./script.sh tests/test6.sm
-./printer
+./printer > result6.txt
+diff tests/test6.res result6.txt
 
-echo ""
-echo "TEST 7"
 ./script.sh tests/test7.sm
-./printer
+./printer > result7.txt
+diff tests/test7.res result7.txt
 
-echo ""
-echo "TEST 8"
 ./script.sh tests/test8.sm
-./printer
+./printer > result8.txt
+diff tests/test8.res result8.txt
 
-echo ""
-echo "TEST 9"
 ./script.sh tests/test9.sm
-./printer
+./printer > result9.txt
+diff tests/test9.res result9.txt
+
+echo "[RUN_SCRIPT] Diff completed"
