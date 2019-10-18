@@ -114,7 +114,6 @@ class CodeGenerator {
         generatedCode += llvmGenerator.generateFunctionFirstLineStart(getSuffixedGlobalVarName(globalVarName));
         generatedCode += llvmGenerator.generateFunctionFirstLineEnd();
         this.generateFunctionBody(ctx.var_declaration().expression());
-//        generatedCode += llvmGenerator.generateFunctionLastLine();
     }
 
     private String getSuffixedGlobalVarName(final String globalVarName) {
@@ -147,8 +146,6 @@ class CodeGenerator {
         currentFunctionArguments.clear();
     }
 
-    // TODO: GENERATE ALL GLOBAL VARIABLES
-    // TODO: INITIALIZE ALL GLOBAL VARIABLES
     void generateInitializationFunction() {
         generatedCode += "\n\n";
 
@@ -162,7 +159,7 @@ class CodeGenerator {
         generatedCode += llvmGenerator.generateFunctionFirstLineEnd();
 
         for (final String globalVariableName : globalVariableSet) {
-            final String tempVariable = tempGenerator.generateTemp();       // todo check for stack problems
+            final String tempVariable = tempGenerator.generateTemp();
             generatedCode += llvmGenerator.generateCallInstruction(tempVariable, getSuffixedGlobalVarName(globalVariableName));
             generatedCode += llvmGenerator.generateStoreInstruction(tempVariable, globalVariableName);
         }
@@ -189,7 +186,6 @@ class CodeGenerator {
         }
 
         String generateFunctionFirstLineStart(final String functionName) {
-            // i32 %{1})
             return MessageFormat.format("define i32 @{0}(", functionName);
         }
 

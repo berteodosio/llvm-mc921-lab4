@@ -13,13 +13,12 @@ javac *.java
 # if you want to test a custom llvm code, comment this line to avoid regenerating code.ll
 java MyParser < $1 > code.ll
 
-# TODO: REMOVE THIS LINE
-#export PATH=$PATH:/usr/local/opt/llvm/bin/llc
-
 # Compile LLVM CODE
-# FIXME: change to llc
 /usr/local/opt/llvm/bin/llc code.ll
 
 # Compile C source file with assembly code
 gcc printer.c code.s -o printer
+
+# execute printer
+./printer
 
