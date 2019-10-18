@@ -14,11 +14,10 @@ javac *.java
 java MyParser < $1 > code.ll
 
 # Compile LLVM CODE
-/usr/local/opt/llvm/bin/llc code.ll
+llc code.ll
 
 # Compile C source file with assembly code
 gcc printer.c code.s -o printer
 
 # execute printer
 ./printer
-
